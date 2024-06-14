@@ -1,0 +1,14 @@
+spring:
+  r2dbc:
+    url: r2dbc:postgresql://172.17.0.2:5432/erp_db
+    username: erp
+    password: erp_erp_erp
+
+  main:
+    banner-mode: "off" # Désactive l'affichage de la bannière Spring Boot au démarrage
+
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG # Active le logging au niveau DEBUG pour les opérations R2DBC
