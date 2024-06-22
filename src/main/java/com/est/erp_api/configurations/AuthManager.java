@@ -3,7 +3,9 @@ package com.est.erp_api.configurations;
 import com.est.erp_api.models.User;
 import com.est.erp_api.repositories.UserRepository;
 import com.est.erp_api.services.JWTService;
+import com.est.erp_api.services.RoleServiceDefault;
 import com.est.erp_api.services.UserService;
+import com.est.erp_api.services.UserServiceDefault;
 import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -19,7 +21,10 @@ public class AuthManager implements ReactiveAuthenticationManager {
     final JWTService jwtService;
 
     @Autowired
-    UserRepository userRepository;
+    UserServiceDefault userServiceDefault;
+
+    @Autowired
+    RoleServiceDefault roleServiceDefault;
 
     public AuthManager(JWTService jwtService) {
         this.jwtService = jwtService;
@@ -31,18 +36,21 @@ public class AuthManager implements ReactiveAuthenticationManager {
                 .filter(auth -> auth instanceof BearerToken)
                 .cast(BearerToken.class)
                 .flatMap(auth -> {
-                    String id = jwtService.parse(auth.getToken());
-                    Mono<User> user = userRepository.findUserById(id).defaultIfEmpty(new User());
-                    Mono<Authentication> authenticated = user.flatMap(u -> {
-                        if (u.getEmail() == null) {
-                            return Mono.error(new Exception("User not found"));
-                        } else {
-                            if (jwtService.validate(auth.getToken(), u)) return Mono.justOrEmpty(new UsernamePasswordAuthenticationToken(u.getEmail(), u.getPassword(), u.getAuthorities()));
-                            return Mono.error(new Exception("Invalid token"));
-                        }
+                    String userId = jwtService.parse(auth.getToken());
+                    return userServiceDefault.getUserById(userId)
+                            .flatMap(user -> {
 
-                    });
-                    return authenticated;
+                                if (jwtService.validate(auth.getToken(), user)) {
+                                    return user.getAuth(roleServiceDefault)
+                                            .collectList()
+                                            .map(auths -> {
+                                                return new UsernamePasswordAuthenticationToken(user.getUsername(), null, auths);
+                                            });
+
+                                } else {
+                                    return Mono.error(new Exception("Invalid token"));
+                                }
+                            });
                 });
     }
 }

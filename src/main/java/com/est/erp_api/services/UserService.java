@@ -8,5 +8,6 @@ import reactor.core.publisher.Mono;
 public interface UserService {
     Mono<User> validateUser(String email, String password) throws EtAuthException;
     Mono<User> registerUser(String name, String email, String password) throws EtAuthException;
+    Mono<User> getUserById(String userId);
 
 }

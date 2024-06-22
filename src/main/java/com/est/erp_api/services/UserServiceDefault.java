@@ -45,4 +45,10 @@ public class UserServiceDefault implements UserService {
                 })
                 .flatMap(userId -> userRepository.findUserById(userId));
     }
+
+    @Override
+    public Mono<User> getUserById(String userId) {
+
+        return userRepository.findUserById(userId);
+    }
 }

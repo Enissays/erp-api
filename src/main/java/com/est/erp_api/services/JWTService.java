@@ -36,13 +36,12 @@ public class JWTService {
 
     public String parse(String token) {
         Claims claims = parser.parseClaimsJws(token).getBody();
-        System.out.println("Claims: " + claims); // Log the claims to check their contents
+        if (claims.getSubject() == null) return null;
         return claims.getSubject();
     }
 
     public boolean validate(String token, User user) {
         Claims claims = parser.parseClaimsJws(token).getBody();
-        System.out.println("Claims: " + claims); // Log the claims to check their contents
         if (claims.getExpiration().before(Date.from(Instant.now()))) return false;
         return claims.getSubject().equals(user.getUser_id());
     }

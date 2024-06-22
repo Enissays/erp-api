@@ -29,3 +29,4 @@ create table user_roles(
 
 create sequence users_user_id_seq increment 1 start 1;
 create sequence roles_role_id_seq increment 1 start 1;
+

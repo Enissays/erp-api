@@ -1,75 +1,105 @@
 package com.est.erp_api.models;
 
+import com.est.erp_api.configurations.ApplicationContextProvider;
+import com.est.erp_api.services.RoleService;
+import com.est.erp_api.services.RoleServiceDefault;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@Entity
+@Table(name = "users")
+@Getter
 public class User implements UserDetails {
-    // Getters et setters
-    @Getter
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private String user_id;
+
     private String username;
-    @Setter
-    @Getter
     private String email;
-    @Setter
-    @Getter
     private String password;
 
-    @Getter
-    @Id
-    private String user_id;
+
+
+    @Setter
+    private RoleServiceDefault roleServiceDefault;
 
     public User() {
     }
 
-    public User(String name, String email, String password, String user_id) {
-        this.username = name;
+    public User(String id, String username, String email, String password) {
+        this.user_id = id;
+        this.username = username;
         this.email = email;
         this.password = password;
-        this.user_id = user_id;
     }
 
+
+    // Not working, need to change to a workaround for a reactive architecture
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        RoleService roleService = ApplicationContextProvider.getBean(RoleService.class);
+        Set<GrantedAuthority> authorities = new HashSet<>();
+
+        roleService.getRolesByUserId(this.user_id)
+                .map(role -> new SimpleGrantedAuthority(role.getRole_name()))
+                .doOnNext(authorities::add)
+                .blockLast();
+
+        return authorities;
+    }
+
+    // -> The workaround
+    public Flux<GrantedAuthority> getAuth(RoleService roleService) {
+        return roleService.getRolesByUserId(this.user_id)
+                .map(role -> new SimpleGrantedAuthority(role.getRole_name()));
+    }
+
+
+
+
+
+
+    @Override
+    public String getPassword() {
+        return this.password;
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return this.username;
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "name='" + username + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
-                '}';
+        return true;
     }
 }
