@@ -14,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api")
 public class UserController {
@@ -55,5 +54,10 @@ public class UserController {
         return userService.registerUser(name, email, password)
                 .map(u -> ResponseEntity.ok(new RequestResponse<>("User registered successfully", "")))
                 .defaultIfEmpty(ResponseEntity.badRequest().body(new RequestResponse<>("User registration failed", "")));
+    }
+
+    @GetMapping("/user/{userId}")
+    public Mono<User> getUserById(@PathVariable("userId") String userId) {
+        return userService.getUserById(userId);
     }
 }

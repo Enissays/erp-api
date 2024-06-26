@@ -6,18 +6,13 @@ import com.est.erp_api.services.RoleServiceDefault;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -51,15 +46,7 @@ public class User implements UserDetails {
     // Not working, need to change to a workaround for a reactive architecture
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        RoleService roleService = ApplicationContextProvider.getBean(RoleService.class);
-        Set<GrantedAuthority> authorities = new HashSet<>();
-
-        roleService.getRolesByUserId(this.user_id)
-                .map(role -> new SimpleGrantedAuthority(role.getRole_name()))
-                .doOnNext(authorities::add)
-                .blockLast();
-
-        return authorities;
+        return null;
     }
 
     // -> The workaround

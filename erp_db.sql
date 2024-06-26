@@ -16,7 +16,9 @@ create table users(
 
 create table roles(
     role_id varchar(10) primary key not null,
-    role_name varchar(50) not null
+    role_name varchar(50) not null,
+    label varchar(50) not null,
+    description text not null
 );
 
 create table user_roles(
