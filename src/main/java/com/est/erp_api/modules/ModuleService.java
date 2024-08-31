@@ -1,10 +1,9 @@
 package com.est.erp_api.modules;
 
 
-import com.est.erp_api.services.JWTService;
+import com.est.erp_api.modules.models.ModuleDetail;
+import com.est.erp_api.modules.models.ModuleRoleDetail;
 import com.est.erp_api.services.RoleService;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -35,6 +34,7 @@ public class ModuleService {
                 detail.setName(moduleInfo.name());
                 detail.setDescription(moduleInfo.description());
                 detail.setRoles(moduleInfo.roles());
+                detail.setId(moduleInfo.id());
                 moduleDetails.add(detail);
             }
         }
@@ -55,6 +55,16 @@ public class ModuleService {
                 .collectList()
                 .flatMapMany(userRoles -> Flux.fromIterable(getAllModules())
                         .filter(module -> Arrays.stream(module.getRoles()).anyMatch(userRoles::contains)));
+    }
+
+    public Flux<ModuleRoleDetail> getModulesDetailsByUser(String userId) {
+        Flux<ModuleDetail> modules = getModulesByUser(userId);
+        return modules.flatMap(module -> {
+           List<String> roleIds = Arrays.asList(module.getRoles());
+           return roleService.getAllRoles(roleIds)
+                   .collectList()
+                   .map(roleDetails -> new ModuleRoleDetail(module.getId(), module.getName(), module.getDescription(), roleDetails));
+        });
     }
 
 

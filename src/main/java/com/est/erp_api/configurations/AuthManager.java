@@ -1,17 +1,13 @@
 package com.est.erp_api.configurations;
 
-import com.est.erp_api.models.User;
-import com.est.erp_api.repositories.UserRepository;
 import com.est.erp_api.services.JWTService;
 import com.est.erp_api.services.RoleServiceDefault;
-import com.est.erp_api.services.UserService;
+
 import com.est.erp_api.services.UserServiceDefault;
-import com.sun.security.auth.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 

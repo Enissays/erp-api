@@ -1,6 +1,11 @@
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 2MB
+      max-request-size: 2MB
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/erp_db
+    url: r2dbc:postgresql://postgresdb:5432/erp_db
     username: erp
     password: erp_erp_erp
 
@@ -12,3 +17,6 @@ logging:
     org:
       springframework:
         r2dbc: DEBUG # Active le logging au niveau DEBUG pour les opérations R2DBC
+        security: ERROR
+        web: ERROR
+

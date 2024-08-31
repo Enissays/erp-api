@@ -36,9 +36,17 @@ public class RoleServiceDefault implements RoleService {
     public Flux<Role> getRolesByUserId(String userId) {
         return user2RoleRepository.findByUserId(userId)
                 .flatMap(user2Role -> {
-                            System.out.println("user2Role.getRole_id() = " + user2Role.getRole_id());
                             return roleRepository.findRoleById(user2Role.getRole_id());
                         }
                 );
+    }
+
+    public Mono<Role> findRoleByName(String roleName) {
+        return roleRepository.findRoleByRoleName(roleName);
+    }
+
+    public Flux<Role> getAllRoles(List<String> roleIds) {
+        return Flux.fromIterable(roleIds)
+                .flatMap(roleRepository::findRoleByRoleName);
     }
 }

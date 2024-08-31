@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api")
 public class UserController {

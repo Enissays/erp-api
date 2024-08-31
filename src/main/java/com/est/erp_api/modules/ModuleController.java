@@ -1,24 +1,23 @@
 package com.est.erp_api.modules;
 
 import com.est.erp_api.configurations.AuthConverter;
-import com.est.erp_api.models.User;
+import com.est.erp_api.modules.models.ModuleDetail;
+import com.est.erp_api.modules.models.ModuleRoleDetail;
 import com.est.erp_api.services.JWTService;
 import com.est.erp_api.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
-import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api/modules")
 public class ModuleController {
@@ -47,6 +46,13 @@ public class ModuleController {
         return moduleService.getModulesByUser(userId);
     }
 
+    @GetMapping("/current")
+    public Flux<ModuleRoleDetail> getModulesByCurrentUser(ServerWebExchange exchange) {
+        return extractUserIdFromToken(exchange)
+                .flatMapMany(moduleService::getModulesDetailsByUser);
+    }
+
+
     private Mono<String> extractUserIdFromToken(ServerWebExchange exchange) {
         return new AuthConverter().convert(exchange)
                 .flatMap(token -> {
@@ -57,12 +63,5 @@ public class ModuleController {
                     }
                 });
     }
-
-    @GetMapping("/current")
-    public Flux<ModuleDetail> getModulesByCurrentUser(ServerWebExchange exchange) {
-        return extractUserIdFromToken(exchange)
-                .flatMapMany(moduleService::getModulesByUser);
-    }
-
 
 }

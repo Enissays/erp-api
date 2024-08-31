@@ -27,4 +27,7 @@ public interface RolesRepository extends R2dbcRepository<Role, String> {
     @Query("SELECT * FROM roles WHERE role_id = :roleId")
     Mono<Role> findRoleById(String roleId);
 
+    @Query("SELECT * FROM roles WHERE role_name = :roleName")
+    Mono<Role> findRoleByRoleName(String roleName);
+
 }
